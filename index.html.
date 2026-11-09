@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Наши статьи</title>
+<style>
+  :root {
+    --bg: #f3f6f8;
+    --card: #ffffff;
+    --ink: #14232e;
+    --muted: #5a6b78;
+    --line: #d5dee5;
+    --accent: #0b5f8a;
+    --accent-ink: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1a22;
+      --card: #172631;
+      --ink: #e6eef3;
+      --muted: #96a8b5;
+      --line: #28404f;
+      --accent: #5cb8e6;
+      --accent-ink: #08212e;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: Georgia, "Times New Roman", serif;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 32px 18px 56px; }
+  header { margin-bottom: 24px; }
+  h1 { font-size: clamp(28px, 6vw, 40px); line-height: 1.15; margin: 0 0 8px; }
+  .sub { color: var(--muted); margin: 0; font-size: 17px; }
+  .search {
+    width: 100%;
+    margin: 20px 0 8px;
+    padding: 13px 14px;
+    font: 16px system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: var(--ink);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  .search:focus-visible, .btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .count { color: var(--muted); font: 14px system-ui, sans-serif; margin: 0 0 14px; }
+  .list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .item {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+  .item h2 { font-size: 20px; line-height: 1.3; margin: 0 0 4px; }
+  .author { color: var(--muted); font: 14px system-ui, sans-serif; margin: 0 0 8px; }
+  .desc { margin: 0 0 12px; font-size: 16px; }
+  .btn {
+    display: inline-block;
+    padding: 10px 16px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font: 600 15px system-ui, sans-serif;
+    text-decoration: none;
+    border-radius: 6px;
+  }
+  .btn:hover { filter: brightness(1.1); }
+  .empty { color: var(--muted); font-family: system-ui, sans-serif; padding: 24px 0; }
+  footer { margin-top: 36px; color: var(--muted); font: 14px system-ui, sans-serif; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Наши статьи</h1>
+    <p class="sub">Студенческие статьи на технические темы. Нажмите «Читать PDF», чтобы открыть статью.</p>
+    <input id="q" class="search" type="search" placeholder="Поиск по названию или автору" aria-label="Поиск по статьям">
+    <p id="count" class="count"></p>
+  </header>
+
+  <ul id="list" class="list"></ul>
+  <p id="empty" class="empty" hidden>Ничего не найдено. Попробуйте другое слово.</p>
+
+  <footer>Университетский проект</footer>
+</div>
+
+<script>
+  // ВАЖНО: чтобы добавить или изменить статью, правьте только этот список.
+  // file: точное имя PDF-файла, лежащего рядом с index.html.
+  var articles = [
+    { title: "Python Programming", author: "Имя Фамилия", desc: "Краткое описание статьи в одно-два предложения.", file: "Python Programming.pdf" },
+    { title: "Название второй статьи", author: "Имя Фамилия", desc: "Краткое описание статьи.", file: "article-02.pdf" },
+    { title: "Название третьей статьи", author: "Имя Фамилия", desc: "Краткое описание статьи.", file: "article-03.pdf" }
+  ];
+
+  var list = document.getElementById("list");
+  var q = document.getElementById("q");
+  var count = document.getElementById("count");
+  var empty = document.getElementById("empty");
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function render() {
+    var term = q.value.trim().toLowerCase();
+    var shown = articles.filter(function (a) {
+      return (a.title + " " + a.author + " " + (a.desc || "")).toLowerCase().indexOf(term) !== -1;
+    });
+    list.innerHTML = shown.map(function (a) {
+      return '<li class="item">' +
+        '<h2>' + esc(a.title) + '</h2>' +
+        '<p class="author">' + esc(a.author) + '</p>' +
+        (a.desc ? '<p class="desc">' + esc(a.desc) + '</p>' : '') +
+        '<a class="btn" href="' + encodeURI(a.file) + '" target="_blank" rel="noopener">Читать PDF</a>' +
+        '</li>';
+    }).join("");
+    empty.hidden = shown.length !== 0;
+    count.textContent = "Статей: " + shown.length + " из " + articles.length;
+  }
+
+  q.addEventListener("input", render);
+  render();
+</script>
+</body>
+</html>
